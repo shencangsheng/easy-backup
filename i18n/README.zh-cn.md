@@ -24,3 +24,9 @@
 ```shell
 bash backup-snapshot.sh -h
 ```
+
+恢复备份
+```shell
+tar --listed-incremental=${backup_exec_path}/${backup_file_name}-snapshot -zxf ${backup_exec_path}/${backup_target_file}_full.tar.gz
+tar --listed-incremental=${backup_exec_path}/${backup_file_name}-snapshot -zxf ${backup_exec_path}/${backup_target_file}_incremental_${current_date}.tar.gz
+```
