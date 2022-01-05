@@ -1,6 +1,6 @@
 # Universal Tools: 一个通用开源的工具库，涵盖多种脚本工具。
 
-简体中文 | [English](http:)
+简体中文 | [English](https://github.com/shencangsheng/Universal-Tools)
 
 ## 尝试使用
 
