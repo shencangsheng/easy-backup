@@ -25,7 +25,7 @@ This is a script to generate a full/incremental backup, use [tar snapshot](https
 bash backup-snapshot.sh -h
 ```
 
-Restore backup
+Restore backup, execute the full amount first and then execute the incremental backup file sequentially
 ```shell
 tar --listed-incremental=${backup_exec_path}/${backup_file_name}-snapshot -zxf ${backup_exec_path}/${backup_target_file}_full.tar.gz
 tar --listed-incremental=${backup_exec_path}/${backup_file_name}-snapshot -zxf ${backup_exec_path}/${backup_target_file}_incremental_${current_date}.tar.gz
