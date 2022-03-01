@@ -1,4 +1,4 @@
-# Universal Tools: general open source tool library, covering a variety of scripting tools.
+# Universal Tools: A compact Linux general-purpose library that covers a variety of useful Shell scripts.
 
 English | [简体中文](./i18n/README.zh-cn.md)
 

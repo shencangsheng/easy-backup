@@ -1,4 +1,4 @@
-# Universal Tools: 一个通用开源的工具库，涵盖多种脚本工具。
+# Universal Tools: 一个轻量级的Linux通用工具库，涵盖多种实用Shell脚本。
 
 简体中文 | [English](https://github.com/shencangsheng/Universal-Tools)
 

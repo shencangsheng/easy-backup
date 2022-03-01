@@ -44,7 +44,7 @@ while getopts "p:n:e:t:i:o:h" opt; do
         echo "-n, # Target backup file name [Required]"
         echo "-e, # Backup directory [Required]"
         echo "-t, # Backup file name [Required]"
-        echo "-i, # Ignore the backup files, Use commas to separate [optional]"
+        echo "-i, # Ignore the backup files, Use commas to separate [Optional]"
         echo ""
         exit 0
         ;;
