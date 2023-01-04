@@ -1,12 +1,10 @@
-# Universal Tools: 一个轻量级的Linux通用工具库，涵盖多种实用Shell脚本。
+# Increment Backup: 全量/增量备份工具脚本。
 
-简体中文 | [English](https://github.com/shencangsheng/Universal-Tools)
+简体中文 | [English](https://github.com/shencangsheng/Increment-Backup)
 
 ## 尝试使用
 
 ### Linux
-
-#### 全量/增量备份工具脚本
 
 运行依赖工具
 * `/bin/bash`
