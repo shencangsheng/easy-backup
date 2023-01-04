@@ -2,7 +2,7 @@
 
 English | [简体中文](./i18n/README.zh-cn.md)
 
-## Trying Universal Tools
+## Trying
 
 ### Linux
 
