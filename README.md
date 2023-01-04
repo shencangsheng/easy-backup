@@ -1,12 +1,10 @@
-# Universal Tools: A compact Linux general-purpose library that covers a variety of useful Shell scripts.
+# Increment Backup: full/incremental backup tool script
 
 English | [简体中文](./i18n/README.zh-cn.md)
 
 ## Trying Universal Tools
 
 ### Linux
-
-#### full/incremental backup tool script
 
 Run Dependencies
 
