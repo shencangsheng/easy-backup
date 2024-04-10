@@ -77,7 +77,14 @@ function get_args_value() {
 
 function check_directory() {
     if [ ! -d "$1" ]; then
-        Error "「$1」 No such file or directory / Must be a directory"
+        Error "「$1」 No such directory / Must be a directory"
+        exit 1
+    fi
+}
+
+function check_file() {
+    if [ ! -f "$1" ]; then
+        Error "「$1」 No such file / Must be a file"
         exit 1
     fi
 }
@@ -85,26 +92,27 @@ function check_directory() {
 current_date=$(date "+%Y-%m-%d")
 
 function backup() {
-    local target_file=$(get_args_value 'target-file')
-    check_directory $target_file
+    local target_dir=$(get_args_value 'target-dir')
+    check_directory $target_dir
 
     local output_path=$(get_args_value 'output-path')
     check_directory $output_path
+    output_path=${output_path%/}
 
     local exclude_files=$(get_args_value 'exclude-files' '--Blank')
     exclude_files=(${exclude_files//,/ })
 
-    local dir_name="$(dirname "$target_file")"
-    local file_name="$(basename "$target_file")"
+    local dir_name="$(dirname "$target_dir")"
+    local file_name="$(basename "$target_dir")"
 
-    target_file="${dir_name}/${file_name}"
+    target_dir="${dir_name}/${file_name}"
 
     local action=$(get_args_value "action")
 
     local _exclude_files=
     if [[ ${#exclude_files[@]} > =0 ]]; then
         for exclude_file in ${exclude_files[@]}; do
-            _exclude_files=${_exclude_file}"--exclude ${target_file}/${exclude_file} "
+            _exclude_files=${_exclude_file}"--exclude ${target_dir}/${exclude_file} "
         done
     fi
 
@@ -125,4 +133,52 @@ function backup() {
     esac
 }
 
-backup
+function restore() {
+    local target_file=$(get_args_value 'target-file')
+    check_file $target_file
+    if [[ "$target_file" != *.tar.gz ]]; then
+        Error "${target_file} Not a compressed file"
+    fi
+    local dir_name="$(dirname "$target_dir")"
+    local file_name="$(basename "$target_dir")"
+    local stripped_name="${file_name%%.tar.gz}"
+
+    local output_path=$(get_args_value 'output-path')
+    check_directory $output_path
+    output_path=${output_path%/}
+
+    local snapshot_file=$(get_args_value 'snapshot-file' "${dir_name}/${stripped_name}-snapshot")
+    check_file $snapshot_file
+
+    local extraction_file="${output_path}/${stripped_name}"
+
+    mkdir -p $extraction_file
+
+    echo "tar --listed-incremental=${snapshot_file} -zxf ${target_file} -C $extraction_file"
+
+    local inc_dir=$(get_args_value 'inc-dir' "${dir_name}")
+
+    local start_date=$(get_args_value 'start-date')
+    local end_date=$(get_args_value 'end-date')
+
+    local FIND="find ${inc_dir}"
+
+    if [ ! -z "$start_date" ]; then
+        FIND="${FIND} -newerct '${start_date}'"
+    fi
+
+    if [ ! -z "$end_date" ]; then
+        FIND="${FIND} ! -newerct '${end_date}'"
+    fi
+
+    local inc_files=($(${FIND} -name "${stripped_name}-inc-*.sql" | awk -F '/' '{ print $2 }' | sort -n))
+
+    if [ -z "$inc_files" ]; then
+        Info "No incremental files scanned"
+        return 0
+    fi
+
+    for item in ${inc_files[@]}; do
+        echo "tar --listed-incremental=${snapshot_file} -zxf ${inc_dir}/${item}"
+    done
+}
