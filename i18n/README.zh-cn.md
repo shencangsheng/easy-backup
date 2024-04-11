@@ -15,13 +15,13 @@ cp easy-backup-cli /usr/local/bin/
 
 ## 示例
 
-1. 创建 `/example/backups/archive.tar.gz` `/example/backups/archive-snapshot`
+1. 创建全量备份 `/example/backups/archive.tar.gz` `/example/backups/archive.snar`
 
 ```bash
 easy-backup-cli --snapshot='backup' --action='full' --archive-dir='/example/archive' --output-path='/example/backups'
 ```
 
-2. 创建 `/example/backups/archive-inc-yyyy-MM-dd.tar.gz`
+2. 创建增量备份 `/example/backups/archive-inc-yyyy-MM-dd.tar.gz`
 
 ```bash
 easy-backup-cli --snapshot='backup' --action='inc' --archive-dir='/example/archive' --output-path='/example/backups'

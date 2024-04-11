@@ -15,13 +15,13 @@ cp easy-backup-cli /usr/local/bin/
 
 ## Examples
 
-1. Created `/example/backups/archive.tar.gz` `/example/backups/archive-snapshot`
+1. Created full backup `/example/backups/archive.tar.gz` `/example/backups/archive.snar`
 
 ```bash
 easy-backup-cli --snapshot='backup' --action='full' --archive-dir='/example/archive' --output-path='/example/backups'
 ```
 
-2. Created `/example/backups/archive-inc-yyyy-MM-dd.tar.gz`
+2. Created incremental backup `/example/backups/archive-inc-yyyy-MM-dd.tar.gz`
 
 ```bash
 easy-backup-cli --snapshot='backup' --action='inc' --archive-dir='/example/archive' --output-path='/example/backups'

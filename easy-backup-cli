@@ -208,8 +208,8 @@ Usage: easy-backup-cli [OPTION...]
 "easy-backup" It is a simple and easy-to-use linux tool for full/incremental file backup, supporting daily incremental data backup/recovery.
 
 Examples:
-  easy-backup-cli --snapshot='backup' --action='full' --archive-dir='/example/archive' --output-path='/example/backups' # Created /example/backups/archive.tar.gz /example/backups/archive-snapshot
-  easy-backup-cli --snapshot='backup' --action='inc' --archive-dir='/example/archive' --output-path='/example/backups' # Created /example/backups/archive-inc-yyyy-MM-dd.tar.gz
+  easy-backup-cli --snapshot='backup' --action='full' --archive-dir='/example/archive' --output-path='/example/backups' # Created full backup /example/backups/archive.tar.gz /example/backups/archive-snapshot
+  easy-backup-cli --snapshot='backup' --action='inc' --archive-dir='/example/archive' --output-path='/example/backups' # Created incremental backup /example/backups/archive-inc-yyyy-MM-dd.tar.gz
   easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore' # Restore snapshot /example/restore/archive to /example/restore/archive
   easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore' --end-date='2024-02-01' # Restore to the snapshot of 2024-02-01 /example/restore/archive
 
@@ -251,8 +251,8 @@ Usage: easy-backup [OPTION...]
 easy-backup 是一个简单易用的 Linux 文件全量/增量备份工具，支持按日增量/恢复数据
 
 Examples:
-  easy-backup-cli --snapshot='backup' --action='full' --archive-dir='/example/archive' --output-path='/example/backups' # 创建 /example/backups/archive.tar.gz /example/backups/archive-snapshot
-  easy-backup-cli --snapshot='backup' --action='inc' --archive-dir='/example/archive' --output-path='/example/backups' # 创建 /example/backups/archive-inc-yyyy-MM-dd.tar.gz
+  easy-backup-cli --snapshot='backup' --action='full' --archive-dir='/example/archive' --output-path='/example/backups' # 创建全量备份 /example/backups/archive.tar.gz /example/backups/archive-snapshot
+  easy-backup-cli --snapshot='backup' --action='inc' --archive-dir='/example/archive' --output-path='/example/backups' # 创建增量备份 /example/backups/archive-inc-yyyy-MM-dd.tar.gz
   easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore' # 恢复快照 /example/restore/archive 到 /example/restore/archive
   easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore' --end-date='2024-02-01' # 恢复到 2024-02-01 的快照 /example/restore/archive
 
