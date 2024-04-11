@@ -89,7 +89,25 @@ function check_file() {
     fi
 }
 
-current_date=$(date "+%Y-%m-%d")
+inc_mode=$(get_args_value 'inc-mode' 'd')
+
+date_format=
+
+case $inc_mode in
+d)
+    date_format="%Y-%m-%d"
+    ;;
+
+s)
+    date_format="%Y%m%d%H%M%S"
+    ;;
+*)
+    Error "Unknown option $inc_mode"
+    exit 1
+    ;;
+esac
+
+current_date=$(date "+${date_format}")
 
 function backup() {
     local archive_dir=$(get_args_value 'archive-dir')
@@ -211,6 +229,7 @@ Examples:
     --archive-dir=STRING      Backup File Path *
     --output-path=STRING      Output File Path *
     --exclude-files=STRING    Do not process files or directories that match the specified pattern(「,」split): --exclude-files='aaa.txt,files/pdf'
+    --inc-mode=[d|s]          d: archive-inc-yyyy-mm-dd.tar.gz; s: archive-inc-yyyymmddHHMMSS.tar.gz; default: d
 
 
  Restore operation mode:
