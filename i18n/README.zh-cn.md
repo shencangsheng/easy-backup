@@ -2,7 +2,7 @@
 
 简体中文 | [English](https://github.com/shencangsheng/easy-backup)
 
-`easy-backup` 是一个简单易用的服务器全量/增量备份工具，支持按日增量/恢复数据.
+`easy-backup` 是一个简单易用的`linux`文件全量/增量备份工具，支持按日增量/恢复数据
 
 ## 尝试使用
 

@@ -2,7 +2,7 @@
 
 English | [简体中文](./i18n/README.zh-cn.md)
 
-`easy-backup` is a simple and easy-to-use server backup tool for both full and incremental backups, and it supports daily incremental data backup/recovery.
+`easy-backup` It is a simple and easy-to-use linux tool for full/incremental file backup, supporting daily incremental data backup/recovery.
 
 ## Trying
 
