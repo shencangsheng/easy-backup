@@ -9,7 +9,7 @@
 ```bash
 git clone https://github.com/shencangsheng/easy-backup.git
 cd easy-backup
-chmod -x easy-backup-cli
+chmod +x easy-backup-cli
 cp easy-backup-cli /usr/local/bin/
 ```
 
