@@ -168,11 +168,11 @@ function restore() {
     local snapshot_file=$(get_args_value 'snapshot-file' "${dir_name}/${stripped_name}.snar")
     check_file $snapshot_file
 
-    local extraction_file="${output_path}/${stripped_name}"
+    # local extraction_file="${output_path}/${stripped_name}"
 
     # mkdir -p $extraction_file
 
-    tar --listed-incremental=${snapshot_file} -zxf ${archive_file} -C $output_path
+    tar --listed-incremental=/dev/null -zxf ${archive_file} -C $output_path
 
     local inc_dir=$(get_args_value 'inc-dir' "${dir_name}")
 
