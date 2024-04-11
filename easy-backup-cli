@@ -1,0 +1,296 @@
+#!/bin/bash
+# creator by shencangsheng
+set -e
+
+OUT="$(uname -s)"
+case "${OUT}" in
+Linux*) machine=Linux ;;
+Darwin*) machine=Mac ;;
+CYGWIN*) machine=Cygwin ;;
+MINGW*) machine=MinGw ;;
+*) machine="UNKNOWN:${OUT}" ;;
+esac
+
+GLOAB_ARGS=("$@")
+
+Error() {
+    echo -e "\033[31m[Error] $1 \033[0m" >&2
+}
+
+Usage() {
+    echo -e "\033[33m[Usage] $1 \033[0m" >&2
+}
+
+Info() {
+    echo -e "[Info] $1" >&2
+}
+
+Todo() {
+    echo -e "\033[36m[Todo] $1 \033[0m" >&2
+}
+
+Notice() {
+    echo -e "\033[33m[Important] $1 \033[0m" >&2
+}
+
+function prompt_confirmation() {
+    local message=$1
+    local response
+
+    read -r -p "$message [Y/n] " response
+
+    case $response in
+    [yY][eE][sS] | [yY])
+        return 0
+        ;;
+    [nN][oO] | [nN])
+        return 1
+        ;;
+    *)
+        Error "Unknown option $response"
+        exit 1
+        ;;
+    esac
+}
+
+function get_args_value() {
+    local key="--$1"
+    local def_value=$2
+    local value=$def_value
+    for arg in "${GLOAB_ARGS[@]}"; do
+        case $arg in
+        $key*)
+            value="${arg#*=}"
+            break
+            ;;
+        esac
+    done
+    if [ -z "$value" ]; then
+        Error "「${key}」Variable is empty"
+        kill -9 $$
+    fi
+    if [ "$def_value" == "--Blank" ]; then
+        value=''
+    fi
+    echo $value
+}
+
+function check_directory() {
+    if [ ! -d "$1" ]; then
+        Error "「$1」 No such directory / Must be a directory"
+        exit 1
+    fi
+}
+
+function check_file() {
+    if [ ! -f "$1" ]; then
+        Error "「$1」 No such file / Must be a file"
+        exit 1
+    fi
+}
+
+current_date=$(date "+%Y-%m-%d")
+
+function backup() {
+    local archive_dir=$(get_args_value 'archive-dir')
+    check_directory $archive_dir
+
+    local output_path=$(get_args_value 'output-path')
+    check_directory $output_path
+    output_path=${output_path%/}
+
+    local exclude_files=$(get_args_value 'exclude-files' '--Blank')
+    exclude_files=(${exclude_files//,/ })
+
+    local dir_name="$(dirname "$archive_dir")"
+    local file_name="$(basename "$archive_dir")"
+
+    archive_dir="${dir_name}/${file_name}"
+
+    local action=$(get_args_value "action")
+
+    local _exclude_files=
+    if [[ ${#exclude_files[@]} > =0 ]]; then
+        for exclude_file in ${exclude_files[@]}; do
+            _exclude_files=${_exclude_file}"--exclude ${archive_dir}/${exclude_file} "
+        done
+    fi
+
+    local TAR="tar --listed-incremental=${output_path}/${file_name}-snapshot -zcf"
+
+    case $action in
+    full)
+        echo "${TAR} ${output_path}/${file_name}.tar.gz -C ${dir_name} ${file_name} ${_exclude_files}"
+        ;;
+
+    inc)
+        echo "${TAR} ${output_path}/${file_name}-inc-${current_date}.tar.gz -C ${dir_name} ${file_name} ${_exclude_files}"
+        ;;
+    *)
+        Error "Unknown option $action"
+        exit 1
+        ;;
+    esac
+}
+
+function restore() {
+    local archive_file=$(get_args_value 'archive-file')
+    check_file $archive_file
+    if [[ "$archive_file" != *.tar.gz ]]; then
+        Error "${archive_file} Not a compressed file"
+    fi
+    local dir_name="$(dirname "$archive_dir")"
+    local file_name="$(basename "$archive_dir")"
+    local stripped_name="${file_name%%.tar.gz}"
+
+    local output_path=$(get_args_value 'output-path')
+    check_directory $output_path
+    output_path=${output_path%/}
+
+    local snapshot_file=$(get_args_value 'snapshot-file' "${dir_name}/${stripped_name}-snapshot")
+    check_file $snapshot_file
+
+    local extraction_file="${output_path}/${stripped_name}"
+
+    mkdir -p $extraction_file
+
+    echo "tar --listed-incremental=${snapshot_file} -zxf ${archive_file} -C $extraction_file"
+
+    local inc_dir=$(get_args_value 'inc-dir' "${dir_name}")
+
+    local start_date=$(get_args_value 'start-date')
+    local end_date=$(get_args_value 'end-date')
+
+    local FIND="find ${inc_dir}"
+
+    if [ ! -z "$start_date" ]; then
+        FIND="${FIND} -newerct '${start_date}'"
+    fi
+
+    if [ ! -z "$end_date" ]; then
+        FIND="${FIND} ! -newerct '${end_date}'"
+    fi
+
+    local inc_files=($(${FIND} -name "${stripped_name}-inc-*.sql" | awk -F '/' '{ print $2 }' | sort -n))
+
+    if [ -z "$inc_files" ]; then
+        Info "No incremental files scanned"
+        return 0
+    fi
+
+    for item in ${inc_files[@]}; do
+        echo "tar --listed-incremental=${snapshot_file} -zxf ${inc_dir}/${item}"
+    done
+}
+
+function help() {
+    cat <<EOF
+
+Usage: easy-backup-cli [OPTION...]
+"easy-backup" is a simple and easy-to-use server backup tool for both full and incremental backups, and it supports daily incremental data backup/recovery.
+
+Examples:
+  easy-backup-cli --snapshot='backup' --action='full' --archive-dir='/example/archive' --output-path='/example/backups' # Created /example/backups/archive.tar.gz /example/backups/archive-snapshot
+  easy-backup-cli --snapshot='backup' --action='inc' --archive-dir='/example/archive' --output-path='/example/backups' # Created /example/backups/archive-inc-yyyy-MM-dd.tar.gz
+  easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore' # Restore snapshot /example/restore/archive to /example/restore/archive
+  easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore' --end-date='2024-02-01' # Restore to the snapshot of 2024-02-01 /example/restore/archive
+
+ Main operation mode:
+  
+    --snapshot=[backup|restore] *
+    
+
+ Other options:
+
+   -h, --help                 give this help list
+     , --help-cn              中文帮助文档
+
+ Backup operation mode:
+
+    --action=[full|inc]       full/increment *
+    --archive-dir=STRING      Backup File Path *
+    --output-path=STRING      Output File Path *
+    --exclude-files=STRING    Do not process files or directories that match the specified pattern(「,」split): --exclude-files='aaa.txt,files/pdf'
+
+
+ Restore operation mode:
+
+    --archive-file=STRING     full volume compressed file *
+    --output-path=STRING      Output File Path *
+    --snapshot-file=STRING    Snapshot stands for snapshot file; by default, it uses the snapshot file of the same name as --archive-file in the same path.
+    --inc-dir=STRING          Incremental file path; by default, it uses the incremental file in the same path as --archive-file.
+    --start-date=DATE         Select the incremental file that is later than this time.
+    --end-date=DATE           Select the incremental file that is earlier than this time.
+
+EOF
+}
+
+function help_cn() {
+    cat <<EOF
+
+Usage: easy-backup [OPTION...]
+easy-backup 是一个简单易用的服务器全量/增量备份工具，支持按日增量/恢复数据.
+
+Examples:
+  easy-backup-cli --snapshot='backup' --action='full' --archive-dir='/example/archive' --output-path='/example/backups' # 创建 /example/backups/archive.tar.gz /example/backups/archive-snapshot
+  easy-backup-cli --snapshot='backup' --action='inc' --archive-dir='/example/archive' --output-path='/example/backups' # 创建 /example/backups/archive-inc-yyyy-MM-dd.tar.gz
+  easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore' # 恢复快照 /example/restore/archive 到 /example/restore/archive
+  easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore' --end-date='2024-02-01' # 恢复到 2024-02-01 的快照 /example/restore/archive
+
+ Main operation mode:
+  
+    --snapshot=[backup|restore] *
+    
+
+ Other options:
+
+   -h, --help                 give this help list
+
+ Backup operation mode:
+
+    --action=[full|inc]       全量/增量 *
+    --archive-dir=STRING      备份文件路径 *
+    --output-path=STRING      输出文件路径 *
+    --exclude-files=STRING    不处理的文件或目录(「,」分隔多个, 相对路径): --exclude-files='aaa.txt,files/pdf'
+
+
+ Restore operation mode:
+
+    --archive-file=STRING     全量压缩包文件 *
+    --output-path=STRING      输出文件路径 *
+    --snapshot-file=STRING    snapshot 快照文件; 默认使用 --archive-file 同路径的同名快照文件
+    --inc-dir=STRING          增量文件路径; 默认使用 --archive-file 同路径增量文件
+    --start-date=DATE         大于此时间的增量文件
+    --end-date=DATE           小于此时间的增量文件
+
+EOF
+}
+
+for arg in "${GLOAB_ARGS[@]}"; do
+    case $arg in
+    --help | -h)
+        help
+        exit 0
+        ;;
+    --help-cn)
+        help_cn
+        exit 0
+        ;;
+    esac
+done
+
+snapshot=$(get_args_value 'snapshot')
+
+case $snapshot in
+backup)
+    backup
+    ;;
+
+restore)
+    restore
+    ;;
+*)
+    Error "Unknown option $snapshot"
+    exit 1
+    ;;
+esac
