@@ -50,5 +50,5 @@ easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.ta
 使用 [tar snapshot](https://www.gnu.org/software/tar/manual/html_node/Incremental-Dumps.html) 实现
 
 ```bash
-easy-backup-cli -h
+easy-backup-cli --help-cn
 ```
