@@ -152,9 +152,9 @@ function restore() {
 
     local extraction_file="${output_path}/${stripped_name}"
 
-    mkdir -p $extraction_file
+    # mkdir -p $extraction_file
 
-    tar --listed-incremental=${snapshot_file} -zxf ${archive_file} -C $extraction_file
+    tar --listed-incremental=${snapshot_file} -zxf ${archive_file} -C $output_path
 
     local inc_dir=$(get_args_value 'inc-dir' "${dir_name}")
 
@@ -179,7 +179,7 @@ function restore() {
     fi
 
     for item in ${inc_files[@]}; do
-        tar --listed-incremental=${snapshot_file} -zxf ${inc_dir}/${item} -C ${output_path}/${stripped_name}
+        tar --listed-incremental=${snapshot_file} -zxf ${inc_dir}/${item} -C ${output_path}
     done
 }
 
