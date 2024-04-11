@@ -271,6 +271,7 @@ Examples:
     --archive-dir=STRING      备份文件路径 *
     --output-path=STRING      输出文件路径 *
     --exclude-files=STRING    不处理的文件或目录(「,」分隔多个, 相对路径): --exclude-files='aaa.txt,files/pdf'
+    --inc-mode=[d|s]          d: archive-inc-yyyy-mm-dd.tar.gz; s: archive-inc-yyyymmddHHMMSS.tar.gz; default: d
 
 
  Restore operation mode:
