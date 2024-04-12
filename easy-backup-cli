@@ -193,7 +193,7 @@ function restore() {
 
     if [ -z "$inc_files" ]; then
         Info "No incremental files scanned"
-        return 0
+        exit 0
     fi
 
     for item in ${inc_files[@]}; do
