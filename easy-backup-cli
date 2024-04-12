@@ -59,7 +59,7 @@ function get_args_value() {
     local value=$def_value
     for arg in "${GLOAB_ARGS[@]}"; do
         case $arg in
-        $key*)
+        "${key}="*)
             value="${arg#*=}"
             break
             ;;
