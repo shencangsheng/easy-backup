@@ -2,6 +2,91 @@
 # creator by shencangsheng
 set -e
 
+function help() {
+    cat <<EOF
+
+Usage: easy-backup-cli [OPTION...]
+"easy-backup" It is a simple and easy-to-use linux tool for full/incremental file backup, supporting daily incremental data backup/recovery.
+
+Examples:
+  easy-backup-cli --snapshot='backup' --action='full' --archive-dir='/example/archive' --output-path='/example/backups' # Created full backup /example/backups/archive.tar.gz /example/backups/archive-snapshot
+  easy-backup-cli --snapshot='backup' --action='inc' --archive-dir='/example/archive' --output-path='/example/backups' # Created incremental backup /example/backups/archive-inc-yyyy-MM-dd.tar.gz
+  easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore' # Restore snapshot /example/restore/archive to /example/restore/archive
+  easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore' --end-date='2024-02-01' # Restore to the snapshot of 2024-02-01 /example/restore/archive
+
+ Main operation mode:
+  
+    --snapshot=[backup|restore] *
+    
+
+ Other options:
+
+   -h, --help                 give this help list
+     , --help-cn              中文帮助文档
+
+ Backup operation mode:
+
+    --action=[full|inc]       full/increment *
+    --archive-dir=STRING      Backup File Path *
+    --output-path=STRING      Output File Path *
+    --exclude-files=STRING    Do not process files or directories that match the specified pattern(「,」split): --exclude-files='aaa.txt,files/pdf'
+    --inc-mode=[d|s]          d: archive-inc-yyyy-mm-dd.tar.gz; s: archive-inc-yyyymmddHHMMSS.tar.gz; default: d
+
+
+ Restore operation mode:
+
+    --archive-file=STRING     full volume compressed file *
+    --output-path=STRING      Output File Path *
+    --snapshot-file=STRING    Snapshot stands for snapshot file; by default, it uses the snapshot file of the same name as --archive-file in the same path.
+    --inc-dir=STRING          Incremental file path; by default, it uses the incremental file in the same path as --archive-file.
+    --start-date=DATE         Select the incremental file that is later than this time.
+    --end-date=DATE           Select the incremental file that is earlier than this time.
+
+EOF
+}
+
+function help_cn() {
+    cat <<EOF
+
+Usage: easy-backup [OPTION...]
+easy-backup 是一个简单易用的 Linux 文件全量/增量备份工具，支持按日增量/恢复数据
+
+Examples:
+  easy-backup-cli --snapshot='backup' --action='full' --archive-dir='/example/archive' --output-path='/example/backups' # 创建全量备份 /example/backups/archive.tar.gz /example/backups/archive-snapshot
+  easy-backup-cli --snapshot='backup' --action='inc' --archive-dir='/example/archive' --output-path='/example/backups' # 创建增量备份 /example/backups/archive-inc-yyyy-MM-dd.tar.gz
+  easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore' # 恢复快照 /example/restore/archive 到 /example/restore/archive
+  easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore' --end-date='2024-02-01' # 恢复到 2024-02-01 的快照 /example/restore/archive
+
+ Main operation mode:
+  
+    --snapshot=[backup|restore] *
+    
+
+ Other options:
+
+   -h, --help                 give this help list
+
+ Backup operation mode:
+
+    --action=[full|inc]       全量/增量 *
+    --archive-dir=STRING      备份文件路径 *
+    --output-path=STRING      输出文件路径 *
+    --exclude-files=STRING    不处理的文件或目录(「,」分隔多个, 相对路径): --exclude-files='aaa.txt,files/pdf'
+    --inc-mode=[d|s]          d: archive-inc-yyyy-mm-dd.tar.gz; s: archive-inc-yyyymmddHHMMSS.tar.gz; default: d
+
+
+ Restore operation mode:
+
+    --archive-file=STRING     全量压缩包文件 *
+    --output-path=STRING      输出文件路径 *
+    --snapshot-file=STRING    snapshot 快照文件; 默认使用 --archive-file 同路径的同名快照文件
+    --inc-dir=STRING          增量文件路径; 默认使用 --archive-file 同路径增量文件
+    --start-date=DATE         大于此时间的增量文件
+    --end-date=DATE           小于此时间的增量文件
+
+EOF
+}
+
 Error() {
     echo -e "\033[31m[Error] $1 \033[0m" >&2
 }
@@ -199,91 +284,6 @@ function restore() {
     for item in ${inc_files[@]}; do
         tar --listed-incremental=${snapshot_file} -zxf ${inc_dir}/${item} -C ${output_path}
     done
-}
-
-function help() {
-    cat <<EOF
-
-Usage: easy-backup-cli [OPTION...]
-"easy-backup" It is a simple and easy-to-use linux tool for full/incremental file backup, supporting daily incremental data backup/recovery.
-
-Examples:
-  easy-backup-cli --snapshot='backup' --action='full' --archive-dir='/example/archive' --output-path='/example/backups' # Created full backup /example/backups/archive.tar.gz /example/backups/archive-snapshot
-  easy-backup-cli --snapshot='backup' --action='inc' --archive-dir='/example/archive' --output-path='/example/backups' # Created incremental backup /example/backups/archive-inc-yyyy-MM-dd.tar.gz
-  easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore' # Restore snapshot /example/restore/archive to /example/restore/archive
-  easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore' --end-date='2024-02-01' # Restore to the snapshot of 2024-02-01 /example/restore/archive
-
- Main operation mode:
-  
-    --snapshot=[backup|restore] *
-    
-
- Other options:
-
-   -h, --help                 give this help list
-     , --help-cn              中文帮助文档
-
- Backup operation mode:
-
-    --action=[full|inc]       full/increment *
-    --archive-dir=STRING      Backup File Path *
-    --output-path=STRING      Output File Path *
-    --exclude-files=STRING    Do not process files or directories that match the specified pattern(「,」split): --exclude-files='aaa.txt,files/pdf'
-    --inc-mode=[d|s]          d: archive-inc-yyyy-mm-dd.tar.gz; s: archive-inc-yyyymmddHHMMSS.tar.gz; default: d
-
-
- Restore operation mode:
-
-    --archive-file=STRING     full volume compressed file *
-    --output-path=STRING      Output File Path *
-    --snapshot-file=STRING    Snapshot stands for snapshot file; by default, it uses the snapshot file of the same name as --archive-file in the same path.
-    --inc-dir=STRING          Incremental file path; by default, it uses the incremental file in the same path as --archive-file.
-    --start-date=DATE         Select the incremental file that is later than this time.
-    --end-date=DATE           Select the incremental file that is earlier than this time.
-
-EOF
-}
-
-function help_cn() {
-    cat <<EOF
-
-Usage: easy-backup [OPTION...]
-easy-backup 是一个简单易用的 Linux 文件全量/增量备份工具，支持按日增量/恢复数据
-
-Examples:
-  easy-backup-cli --snapshot='backup' --action='full' --archive-dir='/example/archive' --output-path='/example/backups' # 创建全量备份 /example/backups/archive.tar.gz /example/backups/archive-snapshot
-  easy-backup-cli --snapshot='backup' --action='inc' --archive-dir='/example/archive' --output-path='/example/backups' # 创建增量备份 /example/backups/archive-inc-yyyy-MM-dd.tar.gz
-  easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore' # 恢复快照 /example/restore/archive 到 /example/restore/archive
-  easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore' --end-date='2024-02-01' # 恢复到 2024-02-01 的快照 /example/restore/archive
-
- Main operation mode:
-  
-    --snapshot=[backup|restore] *
-    
-
- Other options:
-
-   -h, --help                 give this help list
-
- Backup operation mode:
-
-    --action=[full|inc]       全量/增量 *
-    --archive-dir=STRING      备份文件路径 *
-    --output-path=STRING      输出文件路径 *
-    --exclude-files=STRING    不处理的文件或目录(「,」分隔多个, 相对路径): --exclude-files='aaa.txt,files/pdf'
-    --inc-mode=[d|s]          d: archive-inc-yyyy-mm-dd.tar.gz; s: archive-inc-yyyymmddHHMMSS.tar.gz; default: d
-
-
- Restore operation mode:
-
-    --archive-file=STRING     全量压缩包文件 *
-    --output-path=STRING      输出文件路径 *
-    --snapshot-file=STRING    snapshot 快照文件; 默认使用 --archive-file 同路径的同名快照文件
-    --inc-dir=STRING          增量文件路径; 默认使用 --archive-file 同路径增量文件
-    --start-date=DATE         大于此时间的增量文件
-    --end-date=DATE           小于此时间的增量文件
-
-EOF
 }
 
 for arg in "${GLOAB_ARGS[@]}"; do
