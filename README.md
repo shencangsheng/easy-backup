@@ -27,7 +27,7 @@ easy-backup-cli --snapshot='backup' --action='full' --archive-dir='/example/arch
 easy-backup-cli --snapshot='backup' --action='inc' --archive-dir='/example/archive' --output-path='/example/backups'
 ```
 
-3. Restore snapshot `/example/restore/archive` to `/example/restore/archive`
+3. Restore snapshot `/example/backups/archive.tar.gz` to `/example/restore/archive`
 
 ```bash
 easy-backup-cli --snapshot='restore' --archive-file='/example/backups/archive.tar.gz' --output-path='/example/restore'
